@@ -5,7 +5,14 @@ const nextConfig: NextConfig = {
     TMDB_API_KEY: process.env.TMDB_API_KEY,
   },
   images: {
-    domains: ["image.tmdb.org"], // Add TMDB image domain here
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "image.tmdb.org",
+        port: "",
+        pathname: "/**",
+      },
+    ],
   },
 };
 
