@@ -4,7 +4,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fetchFromTMDB } from "@/lib/tmdb";
 import { ChevronLeft, ChevronRight, Play, Info } from "lucide-react";
-import Modal from "react-modal";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from "@/components/ui/dialog";
 
 const BANNER_INDEX_KEY = "tmdb-banner-index";
 
@@ -29,10 +35,6 @@ const Banner = () => {
       }
     };
     loadMovies();
-  }, []);
-
-  useEffect(() => {
-    Modal.setAppElement(document.body);
   }, []);
 
   useEffect(() => {
@@ -141,7 +143,6 @@ const Banner = () => {
         </motion.div>
       </div>
 
-      {/* Left/Right Controls */}
       <button
         onClick={handlePrev}
         className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-black/50 hover:bg-black/70 p-2 rounded-full transition hidden group-hover:block"
@@ -155,51 +156,40 @@ const Banner = () => {
         <ChevronRight size={24} />
       </button>
 
-      {/* Trailer Modal */}
-      {/* Trailer Modal */}
-      <Modal
-        isOpen={showTrailer}
-        onRequestClose={() => setShowTrailer(false)}
-        contentLabel="Trailer Modal"
-        className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50"
-        overlayClassName="fixed inset-0 z-40 bg-black bg-opacity-70"
-      >
-        <div className="relative w-full max-w-3xl aspect-video">
-          {/* ❌ Close Button */}
+      {/* Trailer Dialog */}
+      <Dialog open={showTrailer} onOpenChange={setShowTrailer}>
+        <DialogContent className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
           <button
             onClick={() => setShowTrailer(false)}
             className="absolute -top-4 right-0 sm:top-2 sm:right-2 z-50 text-white bg-black bg-opacity-60 hover:bg-opacity-90 p-2 rounded-full transition"
           >
             ✕
           </button>
-          <iframe
-            src={trailerUrl}
-            className="w-full h-full rounded"
-            allow="autoplay; encrypted-media"
-            allowFullScreen
-          />
-        </div>
-      </Modal>
+          <div className="relative w-full max-w-3xl aspect-video">
+            <iframe
+              src={trailerUrl}
+              className="w-full h-full rounded"
+              allow="autoplay; encrypted-media"
+              allowFullScreen
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
 
-      {/* Info Modal */}
-      <Modal
-        isOpen={showInfo}
-        onRequestClose={() => setShowInfo(false)}
-        contentLabel="Info Modal"
-        className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50"
-        overlayClassName="fixed inset-0 z-40 bg-black bg-opacity-70"
-      >
-        <div className="bg-white text-black max-w-lg p-6 rounded-lg shadow-lg space-y-4">
-          <h2 className="text-xl font-bold">{movie.title || movie.name}</h2>
+      {/* Info Dialog */}
+      <Dialog open={showInfo} onOpenChange={setShowInfo}>
+        <DialogContent className="bg-white text-black max-w-lg p-6 rounded-lg shadow-lg space-y-4">
+          <DialogHeader>
+            <DialogTitle>{movie.title || movie.name}</DialogTitle>
+          </DialogHeader>
           <p>{movie.overview}</p>
-          <button
-            onClick={() => setShowInfo(false)}
-            className="mt-4 bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700"
-          >
-            Close
-          </button>
-        </div>
-      </Modal>
+          <DialogClose asChild>
+            <button className="mt-4 bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700">
+              Close
+            </button>
+          </DialogClose>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
