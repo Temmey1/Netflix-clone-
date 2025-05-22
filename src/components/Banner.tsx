@@ -12,10 +12,27 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 
+interface Movie {
+  id: number;
+  title?: string;
+  name?: string;
+  backdrop_path?: string;
+  poster_path?: string;
+  overview?: string;
+}
+
+interface Video {
+  id: string;
+  key: string;
+  name: string;
+  site: string;
+  type: string;
+}
+
 const BANNER_INDEX_KEY = "tmdb-banner-index";
 
 const Banner = () => {
-  const [movies, setMovies] = useState<any[]>([]);
+  const [movies, setMovies] = useState<Movie[]>([]);
   const [index, setIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [trailerUrl, setTrailerUrl] = useState("");
@@ -25,12 +42,10 @@ const Banner = () => {
 
   useEffect(() => {
     const loadMovies = async () => {
-      const data = await fetchFromTMDB("/trending/movie/week");
+      const data: Movie[] = await fetchFromTMDB("/trending/movie/week");
       if (data.length > 0) {
         setMovies(data);
-        const savedIndex = parseInt(
-          localStorage.getItem(BANNER_INDEX_KEY) || "0"
-        );
+        const savedIndex = parseInt(localStorage.getItem(BANNER_INDEX_KEY) || "0");
         setIndex(savedIndex < data.length ? savedIndex : 0);
       }
     };
@@ -65,9 +80,9 @@ const Banner = () => {
 
   const handlePlay = async () => {
     const movieId = movies[index]?.id;
-    const res = await fetchFromTMDB(`/movie/${movieId}/videos`);
+    const res: Video[] = await fetchFromTMDB(`/movie/${movieId}/videos`);
     const trailer = res.find(
-      (vid: any) => vid.type === "Trailer" && vid.site === "YouTube"
+      (vid) => vid.type === "Trailer" && vid.site === "YouTube"
     );
     if (trailer) {
       setTrailerUrl(`https://www.youtube.com/embed/${trailer.key}?autoplay=1`);
@@ -92,7 +107,7 @@ const Banner = () => {
         <motion.img
           key={imageUrl}
           src={imageUrl}
-          alt={movie.title || movie.name}
+          alt={movie.title || movie.name || "Banner image"}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -145,44 +160,47 @@ const Banner = () => {
 
       <button
         onClick={handlePrev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-black/50 hover:bg-black/70 p-2 rounded-full transition hidden group-hover:block"
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-black/50 hover:bg-black/70 p-2 rounded-full"
+        aria-label="Previous Banner"
       >
-        <ChevronLeft size={24} />
+        <ChevronLeft size={24} color="white" />
       </button>
+
       <button
         onClick={handleNext}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-black/50 hover:bg-black/70 p-2 rounded-full transition hidden group-hover:block"
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-black/50 hover:bg-black/70 p-2 rounded-full"
+        aria-label="Next Banner"
       >
-        <ChevronRight size={24} />
+        <ChevronRight size={24} color="white" />
       </button>
 
       {/* Trailer Dialog */}
       <Dialog open={showTrailer} onOpenChange={setShowTrailer}>
-        <DialogContent className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
-          <button
-            onClick={() => setShowTrailer(false)}
-            className="absolute -top-4 right-0 sm:top-2 sm:right-2 z-50 text-white bg-black bg-opacity-60 hover:bg-opacity-90 p-2 rounded-full transition"
-          >
-            ✕
-          </button>
-          <div className="relative w-full max-w-3xl aspect-video">
-            <iframe
-              src={trailerUrl}
-              className="w-full h-full rounded"
-              allow="autoplay; encrypted-media"
-              allowFullScreen
-            />
-          </div>
+        <DialogContent className="bg-black/90 p-0 rounded-lg max-w-4xl aspect-video overflow-hidden">
+          <iframe
+            width="100%"
+            height="100%"
+            src={trailerUrl}
+            title="Movie Trailer"
+            allow="autoplay; fullscreen"
+            allowFullScreen
+            frameBorder="0"
+          />
+          <DialogClose asChild>
+            <button className="absolute top-3 right-3 text-white bg-black/50 rounded-full p-1 hover:bg-black/70">
+              ✕
+            </button>
+          </DialogClose>
         </DialogContent>
       </Dialog>
 
-      {/* Info Dialog */}
+      {/* More Info Dialog */}
       <Dialog open={showInfo} onOpenChange={setShowInfo}>
-        <DialogContent className="bg-white text-black max-w-lg p-6 rounded-lg shadow-lg space-y-4">
+        <DialogContent className="bg-white text-black max-w-lg p-6 rounded-lg space-y-4 max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{movie.title || movie.name}</DialogTitle>
+            <p>{movie.overview}</p>
           </DialogHeader>
-          <p>{movie.overview}</p>
           <DialogClose asChild>
             <button className="mt-4 bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700">
               Close

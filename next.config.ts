@@ -1,10 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   env: {
-  TMDB_API_KEY: process.env.TMDB_API_KEY
-}
+    TMDB_API_KEY: process.env.TMDB_API_KEY,
+  },
+  images: {
+    domains: ["image.tmdb.org"], // Add TMDB image domain here
+  },
 };
 
 export default nextConfig;

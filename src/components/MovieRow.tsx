@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   Dialog,
   DialogContent,
-  DialogTrigger,
   DialogHeader,
   DialogTitle,
   DialogDescription,
@@ -47,11 +47,14 @@ const MovieRow: React.FC<Props> = ({ title, movies }) => {
             whileHover={{ scale: 1.05 }}
             onClick={() => setSelectedMovie(movie)}
           >
-            <img
+            <Image
               src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-              alt={movie.title || movie.name}
-              className="rounded-md object-cover w-full h-auto"
+              alt={movie.title || movie.name || "Movie poster"}
+              width={220}
+              height={330}
+              className="rounded-md object-cover"
               loading="lazy"
+              unoptimized={false} // optional: you can set to true if you want to skip Next.js optimization
             />
           </motion.div>
         ))}
