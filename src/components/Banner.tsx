@@ -41,6 +41,7 @@ const Banner = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" }); // scroll to top on mount
     const loadMovies = async () => {
       const data: Movie[] = await fetchFromTMDB("/trending/movie/week");
       if (data.length > 0) {
@@ -90,6 +91,14 @@ const Banner = () => {
     }
   };
 
+  const handleSwipe = (direction: "left" | "right") => {
+    if (direction === "left") {
+      handleNext();
+    } else {
+      handlePrev();
+    }
+  };
+
   if (!movies.length) return null;
 
   const movie = movies[index];
@@ -103,16 +112,23 @@ const Banner = () => {
       onMouseLeave={() => setIsPaused(false)}
       className="relative h-[70vh] md:h-[80vh] w-full text-white overflow-hidden group"
     >
-      <AnimatePresence>
+      <AnimatePresence initial={false} custom={index}>
         <motion.img
           key={imageUrl}
           src={imageUrl}
           alt={movie.title || movie.name || "Banner image"}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1 }}
-          className="absolute inset-0 w-full h-full object-cover z-0"
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -50 }}
+          transition={{ duration: 0.8 }}
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          onDragEnd={(e, { offset, velocity }) => {
+            const swipe = offset.x * velocity.x;
+            if (swipe < -10000) handleSwipe("left");
+            else if (swipe > 10000) handleSwipe("right");
+          }}
+          className="absolute inset-0 w-full h-full object-cover z-0 cursor-grab"
         />
       </AnimatePresence>
 
@@ -120,7 +136,7 @@ const Banner = () => {
 
       <div className="relative z-20 h-full flex flex-col justify-center px-4 sm:px-6 md:px-10 space-y-4 max-w-2xl">
         <motion.h1
-          className="text-3xl sm:text-4xl md:text-5xl font-bold"
+          className="text-2xl sm:text-4xl md:text-5xl font-bold"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -138,41 +154,43 @@ const Banner = () => {
         </motion.p>
 
         <motion.div
-          className="flex flex-col sm:flex-row gap-3 sm:gap-4"
+          className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
         >
           <button
             onClick={handlePlay}
-            className="flex items-center gap-2 bg-white text-black px-6 py-2 rounded font-semibold hover:bg-gray-200 transition text-sm sm:text-base"
+            className="flex justify-center items-center gap-2 bg-white text-black px-6 py-2 rounded font-semibold hover:bg-gray-200 transition text-sm sm:text-base w-full sm:w-auto"
           >
-            <Play size={16} /> Play Trailer
+            <Play size={16} /> <span>Play Trailer</span>
           </button>
           <button
             onClick={() => setShowInfo(true)}
-            className="flex items-center gap-2 bg-gray-700/70 text-white px-6 py-2 rounded font-semibold hover:bg-gray-600 transition text-sm sm:text-base"
+            className="flex justify-center items-center gap-2 bg-gray-700/70 text-white px-6 py-2 rounded font-semibold hover:bg-gray-600 transition text-sm sm:text-base w-full sm:w-auto"
           >
-            <Info size={16} /> More Info
+            <Info size={16} /> <span>More Info</span>
           </button>
         </motion.div>
       </div>
 
-      <button
-        onClick={handlePrev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-black/50 hover:bg-black/70 p-2 rounded-full"
-        aria-label="Previous Banner"
-      >
-        <ChevronLeft size={24} color="white" />
-      </button>
-
-      <button
-        onClick={handleNext}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-black/50 hover:bg-black/70 p-2 rounded-full"
-        aria-label="Next Banner"
-      >
-        <ChevronRight size={24} color="white" />
-      </button>
+      {/* Arrows (desktop only) */}
+      <div className="hidden sm:block">
+        <button
+          onClick={handlePrev}
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-black/50 hover:bg-black/70 p-2 rounded-full"
+          aria-label="Previous Banner"
+        >
+          <ChevronLeft size={24} color="white" />
+        </button>
+        <button
+          onClick={handleNext}
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-black/50 hover:bg-black/70 p-2 rounded-full"
+          aria-label="Next Banner"
+        >
+          <ChevronRight size={24} color="white" />
+        </button>
+      </div>
 
       {/* Trailer Dialog */}
       <Dialog open={showTrailer} onOpenChange={setShowTrailer}>

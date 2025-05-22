@@ -3,6 +3,7 @@ import MovieRow from '@/components/MovieRow';
 import { fetchFromTMDB } from '@/lib/tmdb';
 
 export default async function Home() {
+  
   const [trending, topRated, action] = await Promise.all([
     fetchFromTMDB('/trending/all/week'),
     fetchFromTMDB('/movie/top_rated'),
