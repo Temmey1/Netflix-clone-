@@ -14,7 +14,7 @@ const Navbar = () => {
       initial={{ y: -50 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6 }}
-      className="fixed top-0 w-full z-50 bg-gradient-to-b from-black/80 to-transparent px-6 md:px-10 py-4 flex items-center justify-between"
+      className="fixed text-white top-0 w-full z-50 bg-gradient-to-b from-black/80 to-transparent px-6 md:px-10 py-4 flex items-center justify-between"
     >
       <h1 className="text-xl sm:text-2xl font-bold text-netflix">NETFLIX</h1>
 
